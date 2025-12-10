@@ -40,15 +40,18 @@ const SearchResult = ({ title, author, imageSrc, isAvailable }) => (
         </div>
 
         <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-            <button style={{
-                background: 'var(--brand-blue)',
-                color: 'white',
-                border: 'none',
-                borderRadius: '8px',
-                padding: '8px 24px',
-                fontWeight: '600',
-                fontSize: '14px'
-            }}>
+            <button
+                disabled={!isAvailable}
+                style={{
+                    background: isAvailable ? 'var(--brand-blue)' : '#c6c6c8',
+                    color: 'white',
+                    border: 'none',
+                    borderRadius: '8px',
+                    padding: '8px 24px',
+                    fontWeight: '600',
+                    fontSize: '14px',
+                    cursor: isAvailable ? 'pointer' : 'default'
+                }}>
                 Lainaa
             </button>
             <button style={{
