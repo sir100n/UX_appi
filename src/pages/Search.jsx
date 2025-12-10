@@ -1,18 +1,73 @@
 import React, { useState } from 'react';
 import Header from '../components/Header';
-import { Search as SearchIcon, X } from 'lucide-react';
+import { Search as SearchIcon, X, CheckCircle } from 'lucide-react';
 
-const SearchResult = ({ title, author, imageSrc, isAvailable }) => (
+const BorrowSuccessModal = ({ bookTitle, onClose }) => (
+    <div style={{
+        position: 'fixed',
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
+        backgroundColor: 'rgba(0,0,0,0.5)',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        zIndex: 1000,
+        padding: '24px'
+    }}>
+        <div style={{
+            backgroundColor: 'var(--bg-primary)',
+            color: 'var(--text-primary)',
+            borderRadius: '16px',
+            padding: '32px 24px',
+            width: '100%',
+            maxWidth: '320px',
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            textAlign: 'center',
+            boxShadow: '0 4px 20px rgba(0,0,0,0.2)'
+        }}>
+            <div style={{
+                width: '80px',
+                height: '80px',
+                borderRadius: '50%',
+                backgroundColor: '#2ecc71',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                marginBottom: '24px'
+            }}>
+                <CheckCircle size={48} color="white" strokeWidth={3} />
+            </div>
+
+            <h2 style={{ fontSize: '20px', fontWeight: 'bold', marginBottom: '8px' }}>Laina onnistui</h2>
+
+            <p style={{ fontSize: '16px', margin: '0 0 4px 0', fontWeight: '500' }}>{bookTitle}</p>
+            <p style={{ fontSize: '14px', color: 'var(--text-secondary)', margin: '0 0 24px 0' }}>Eräpäivä: 10.01.2024</p>
+
+            <button
+                onClick={onClose}
+                className="btn-primary"
+            >
+                OK
+            </button>
+        </div>
+    </div>
+);
+
+const SearchResult = ({ title, author, imageSrc, isAvailable, onBorrow }) => (
     <div style={{
         display: 'flex',
         alignItems: 'flex-start',
         padding: '16px 20px',
-        borderBottom: '1px solid #eee'
+        borderBottom: '1px solid var(--border-color)'
     }}>
         <div style={{
             width: '60px',
             height: '90px',
-            background: '#eee',
+            background: 'var(--bg-secondary)',
             borderRadius: '4px',
             marginRight: '16px',
             flexShrink: 0,
@@ -22,7 +77,7 @@ const SearchResult = ({ title, author, imageSrc, isAvailable }) => (
         </div>
 
         <div style={{ flex: 1, marginRight: '16px' }}>
-            <h3 style={{ fontSize: '16px', fontWeight: 'bold', margin: '0 0 4px 0' }}>{title}</h3>
+            <h3 style={{ fontSize: '16px', fontWeight: 'bold', margin: '0 0 4px 0', color: 'var(--text-primary)' }}>{title}</h3>
             <p style={{ color: 'var(--text-secondary)', margin: '0 0 4px 0' }}>{author}</p>
 
             {/* Availability Indicator */}
@@ -42,6 +97,7 @@ const SearchResult = ({ title, author, imageSrc, isAvailable }) => (
         <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
             <button
                 disabled={!isAvailable}
+                onClick={onBorrow}
                 style={{
                     background: isAvailable ? 'var(--brand-blue)' : '#c6c6c8',
                     color: 'white',
@@ -70,8 +126,21 @@ const SearchResult = ({ title, author, imageSrc, isAvailable }) => (
 );
 
 const Search = () => {
+    const [borrowModal, setBorrowModal] = useState(null); // { title: string } or null
+
+    const handleBorrow = (title) => {
+        setBorrowModal({ title });
+    };
+
     return (
-        <div style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', height: '100%', position: 'relative' }}>
+            {borrowModal && (
+                <BorrowSuccessModal
+                    bookTitle={borrowModal.title}
+                    onClose={() => setBorrowModal(null)}
+                />
+            )}
+
             {/* Header with Search Bar overlay */}
             <div style={{
                 background: 'var(--bg-primary)',
@@ -83,14 +152,14 @@ const Search = () => {
                     TaskuHelmet
                 </div>
                 <div style={{
-                    background: '#eef',
+                    background: 'var(--bg-secondary)',
                     borderRadius: '10px',
                     padding: '8px 12px',
                     display: 'flex',
                     alignItems: 'center',
                     gap: '8px'
                 }}>
-                    <SearchIcon size={20} color="#888" />
+                    <SearchIcon size={20} color="var(--text-secondary)" />
                     <input
                         type="text"
                         placeholder="Hae..."
@@ -100,10 +169,11 @@ const Search = () => {
                             background: 'transparent',
                             fontSize: '16px',
                             flex: 1,
-                            outline: 'none'
+                            outline: 'none',
+                            color: 'var(--text-primary)'
                         }}
                     />
-                    <X size={20} color="#888" />
+                    <X size={20} color="var(--text-secondary)" />
                 </div>
             </div>
 
@@ -113,12 +183,14 @@ const Search = () => {
                     author="Harry Potter"
                     imageSrc="/covers/potter.png"
                     isAvailable={true}
+                    onBorrow={() => handleBorrow("Harry Potter ja viisasten kivi")}
                 />
                 <SearchResult
                     title="Harry Potter ja Azkabanin va..."
                     author="J.K. Reylong"
                     imageSrc="/covers/potter.png"
                     isAvailable={false}
+                    onBorrow={() => handleBorrow("Harry Potter ja Azkabanin va...")}
                 />
             </div>
         </div>
